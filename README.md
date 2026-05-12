@@ -9,7 +9,7 @@
 - Asignatura: Programacion Web
 - Unidad: 11 - Buenas Practicas y Patrones de Diseno
 - Actividad: Post-Contenido 2
-- Fecha: 09/05/2026
+- Fecha: 12/05/2026
 
 ## Objetivo
 
@@ -33,47 +33,70 @@ centralizado de excepciones mediante `@RestControllerAdvice`.
 - Logback
 - springdoc-openapi 2.3.0
 
-## Arquitectura implementada
+# Arquitectura del Proyecto
 
 ```text
 src/main/java/com/empresa/catalogo/
 |-- controller/
 |   `-- ProductoController.java
+|
 |-- service/
 |   |-- ProductoService.java
 |   `-- ProductoServiceImpl.java
+|
 |-- repository/
 |   `-- ProductoRepository.java
+|
 |-- dto/
 |   |-- ProductoRequestDTO.java
 |   `-- ProductoResponseDTO.java
+|
 |-- entity/
 |   `-- Producto.java
+|
 |-- factory/
 |   `-- ProductoFactory.java
-`-- exception/
-    |-- ApiError.java
-    |-- GlobalExceptionHandler.java
-    `-- RecursoNoEncontradoException.java
+|
+|-- exception/
+|   |-- ApiError.java
+|   |-- GlobalExceptionHandler.java
+|   `-- RecursoNoEncontradoException.java
+|
+`-- CatalogoApplication.java
+
+src/main/resources/
+|-- application.properties
+`-- logback-spring.xml
 ```
+
+---
+
+## Arquitectura en Capas
 
 ```text
 Cliente HTTP
     |
     v
-ProductoController  ---> Swagger/OpenAPI documenta endpoints y respuestas
+ProductoController
     |
     v
-ProductoService (interfaz)
+ProductoService (interfaz - DIP)
     |
     v
-ProductoServiceImpl ---> SLF4J registra operaciones, advertencias y errores
-    |
-    v
-ProductoRepository ---> H2 Database
+ProductoServiceImpl
+    |                    \
+    v                     v
+ProductoRepository      ProductoFactory
+    |                     |
+    v                     v
+Producto Entity      DTOs Request/Response
 
-Logback envia los registros a consola y a logs/catalogo.log con rotacion diaria.
+GlobalExceptionHandler maneja errores globales
+SLF4J + Logback registran eventos del sistema
+Swagger/OpenAPI documenta la API REST
 ```
+
+---
 
 ## Logging implementado
 
@@ -204,12 +227,6 @@ INFO  c.e.c.service.ProductoServiceImpl - Creando producto: nombre=Laptop, categ
 INFO  c.e.c.service.ProductoServiceImpl - Producto creado exitosamente con id=1
 ```
 
-Evidencia sugerida:
-
-```text
-evidencias/post2-checkpoint-1-logs-consola.png
-```
-
 ### Checkpoint 2 - Archivo logs/catalogo.log
 
 1. Con la aplicacion encendida, ejecutar operaciones `POST`, `GET` y `GET /999`.
@@ -220,12 +237,6 @@ Get-Content logs\catalogo.log
 ```
 
 3. Tomar captura del terminal o del editor mostrando registros con fecha completa.
-
-Evidencia sugerida:
-
-```text
-evidencias/post2-checkpoint-2-archivo-log.png
-```
 
 ### Checkpoint 3 - Swagger UI
 
@@ -240,14 +251,20 @@ http://localhost:8080/swagger-ui.html
 4. Verificar que aparecen descripcion, request body y respuestas `201` y `400`.
 5. Revisar tambien `GET /api/productos/{id}` para confirmar `200` y `404`.
 
-Evidencia sugerida:
+---
 
-```text
-evidencias/post2-checkpoint-3-swagger-ui.png
-```
+## Capturas del Proyecto
 
-## Recomendacion para entrega
+Las capturas se encuentran en la carpeta `evidencias/`.
 
-Guardar las capturas dentro de `evidencias/` con los nombres sugeridos y subirlas
-en un commit adicional de documentacion si el profesor exige que las imagenes
-queden dentro del repositorio.
+### Mensajes app corriendo
+
+![mensajes_corriendo](evidencias/mensajes_app_corrriendo.png)
+
+### Mensajes archivo logs
+
+![mensajes_logs](evidencias/mensajes_archivo_logs.png)
+
+### Swagger UI 
+
+![swaggerUi](evidencias/SwaggerUI.png)
